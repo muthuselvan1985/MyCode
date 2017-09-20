@@ -1,0 +1,115 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+class Solution {
+ class HackLand
+        {
+            public int number_of_Cities;
+            public int number_of_Roads;
+            public long CostOfLib;
+            public long CostOfRoad;
+            public List<Road> Roads;            
+        }
+
+        class Road
+        {
+            public int CityA;
+            public int CityB;
+        }
+       private static List<int>[] adjCities;
+        private static bool[] visited;
+    
+    static void dfs(int s)
+        {
+            visited[s] = true;
+            for (int i = 0; i < adjCities[s].Count; i++)
+            {
+                if (visited[adjCities[s][i]-1] == false)
+                    dfs(adjCities[s][i]-1);
+            }
+        }
+    
+    static void Main(String[] args) {
+         int q = Convert.ToInt32(Console.ReadLine());
+            List<HackLand> lands=new List<HackLand>();
+
+            for (int a0 = 0; a0 < q; a0++)
+            {
+                HackLand land = new HackLand();
+                land.Roads = new List<Road>();
+                string[] tokens_n = Console.ReadLine().Split(' ');
+                land.number_of_Cities = Convert.ToInt32(tokens_n[0]);
+                land.number_of_Roads = Convert.ToInt32(tokens_n[1]);
+                land.CostOfLib = Convert.ToInt64(tokens_n[2]);
+                land.CostOfRoad = Convert.ToInt64(tokens_n[3]);
+                for (int a1 = 0; a1 < land.number_of_Roads; a1++)
+                {
+                    string[] tokens_city_1 = Console.ReadLine().Split(' ');
+                    Road road = new Road();
+                    road.CityA = Convert.ToInt32(tokens_city_1[0]);
+                    road.CityB = Convert.ToInt32(tokens_city_1[1]);
+                    land.Roads.Add(road);
+                }
+
+                lands.Add(land);
+            }
+
+
+            foreach (var hackLand in lands)
+            {
+                long totalCost = 0;
+                visited = null;
+                adjCities = null;
+                if (hackLand.CostOfLib <= hackLand.CostOfRoad)
+                {
+                    totalCost = hackLand.CostOfLib*hackLand.number_of_Cities;
+                }
+                else
+                {
+                    var nodes1 = hackLand.number_of_Cities;
+                    var edge1 = hackLand.number_of_Roads;
+                    long connectedComponents = 0;
+ 
+
+                    adjCities = new List<int>[nodes1];
+
+                    foreach (var road in hackLand.Roads)
+                    {
+                        if(adjCities[road.CityA-1]==null)
+                            adjCities[road.CityA-1] = new List<int>();
+
+                        adjCities[road.CityA-1].Add(road.CityB);
+
+                        if (adjCities[road.CityB-1] == null)
+                            adjCities[road.CityB-1] = new List<int>();
+                        adjCities[road.CityB-1].Add(road.CityA);
+                    } 
+
+
+                   visited= new bool[hackLand.number_of_Cities];
+
+                    for (int i = 0; i < edge1; i++) { 
+                        visited[i] = false;
+                         }
+
+                    for (int i = 0; i < nodes1; i++)
+                    {
+                        if (visited[i] == false)
+                        {
+                            dfs(i);
+                            connectedComponents++;
+                        }
+                    }
+
+                    totalCost = hackLand.CostOfRoad*(hackLand.number_of_Roads-1)+
+                                hackLand.CostOfLib*connectedComponents;
+
+
+
+                }
+
+                Console.WriteLine(totalCost);
+            }
+    }
+}
